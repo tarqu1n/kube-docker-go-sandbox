@@ -45,17 +45,52 @@ to actually execute them need to evaluate them, using powershell:
 Now that Docker is using the Minikube Daemon build the docker image again, connect to the Minikube instance and confirm the images are present.
 
 ## Creating and Starting the Deployment
+Deployments are the central meaphor for "apps" / "services" and are described as a collection of resources and References.
 
-`kubectl run minikubegohello --image=go-test-app --port=8001`
+Use Kubectl to deploy the image.
+
+`kubectl run minikubegohello --image=go-test-app --port=8001 --image-pull-policy=Never`
+
+expose the service to external IP addresses. NodePort allows us to have an external IP address connected to the port on the container we just deployed.
+
+`kubectl expose deployment minikubegohello --type=NodePort`
+
+Check that the image is running correctly by querying the pods:
+
 `kubectl get pods`
-`kubctl expose deployment minikubegohello --type=NodePort`
-not running due to error image?...
 
-References:
-- [Setting up minikube for windows](https://medium.com/@maumribeiro/running-your-own-docker-images-in-minikube-for-windows-ea7383d931f6)
+Get the url of the running service:
+
+`minikube service minikubegohello --url`
+
+and curl it to ensure the service is externally accessible.
+
+## Deploying from file definition
+The `deployment.yaml` file describes the resources required for the deployment that we took manually in the previous stage and can be deployed using:
+
+`kubectl apply -f ./deployment.yaml`
 
 ## Teardown
 
-Remember to stop Minikube when you're done.
+Remember to delete the service and stop Minikube when you're done.
+
+`kubectl delete deployment minikubegohello`
 
 `minikube stop`
+
+# Useful Commands
+
+`kubectl exec -it pod-name bash` - executes the bash command on named services.
+
+`kubectl port-forward <pod-name> <local-port:remote-port>` - Forwards local port to specified pod port.
+
+`kubctl attach <pod-name> -c <container-name>` - Attaches to a process that is running in an existing container.
+
+
+# Glossary
+- A **Pod** is a Kubernetes abstraction that represents a group of one or more application containers. Containers on a pod are tightly coupled and share IP/Port space are always co-located and co-scheduled
+- A **Node** is a physical or virtual machine on which the pods are deployed. Each Node has a `kublet` service which is responsible for communication between the master and the node and a `kube-proxy` service which handles port forwarding on the node.
+- The **Master Node** Orchestrates the state of the cluster.
+
+# References:
+- [Setting up minikube for windows](https://medium.com/@maumribeiro/running-your-own-docker-images-in-minikube-for-windows-ea7383d931f6)
