@@ -78,6 +78,26 @@ Remember to delete the service and stop Minikube when you're done.
 
 `minikube stop`
 
+## GCloud deployment
+
+To allow a remote Kubernetes to deploy docker files it must be connected to an image repository. One such commonly used repository is the Google Cloud Container Registry. In order to complete this you must have an active Cloud project with the container registery API enabled.
+
+Configure docker to use the gcloud cli to auth requests to Container Registery.
+
+`gcloud auth configure-docker`
+
+Tag the docker image with a registry name, this configures the `docker push` command to push the image to the correct location
+
+`docker tag go-test-app gcr.io/<project-id>/go-test-app:latest`
+
+Push the image to the Container Registry
+
+`docker push gcr.io/<project-id>/go-test-app:latest`
+
+verify the image arrived at the host location by visiting
+
+`http://gcr.io/<project-id>/go-test-app`
+
 # Useful Commands
 
 `kubectl exec -it pod-name bash` - executes the bash command on named services.
